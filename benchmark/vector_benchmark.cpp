@@ -13,7 +13,7 @@ static void VecPushBack(benchmark::State& state) {
 
   for (auto _ : state) {
     std::vector<std::byte> vec;
-    for (auto i = 0uz; i < size + 1; ++i) {
+    for (auto i = 0; i < size + 1; ++i) {
       vec.push_back({});
     }
     benchmark::DoNotOptimize(vec);
@@ -26,7 +26,7 @@ static void VecPushBackWithReserve(benchmark::State& state) {
   for (auto _ : state) {
     std::vector<std::byte> vec;
     vec.reserve(size + 1);
-    for (auto i = 0uz; i < size + 1; ++i) {
+    for (auto i = 0; i < size + 1; ++i) {
       vec.push_back({});
     }
     benchmark::DoNotOptimize(vec);
