@@ -86,3 +86,9 @@ Now, finally you can view the different between the two!
 perf stat -d -d -d ./build/benchmark/game_entity_benchmark --benchmark_filter=OOPGameEntityEnableRender/65536 --benchmark_min_time=3
 perf stat -d -d -d ./build/benchmark/game_entity_benchmark --benchmark_filter=DODGameEntityEnableRender/65536 --benchmark_min_time=3
 ```
+
+## Good Reads
+
+[1](https://bencher.dev/learn/benchmarking/cpp/google-benchmark/)
+[2](https://jaredmil.medium.com/micro-benchmarking-c-with-quick-bench-8788b1edcf79)
+[3](https://jaredmil.medium.com/c-beyond-the-syllabus-2-intro-to-benchmarking-and-macro-benchmarking-deep-dive-a465fc73a604)
