@@ -9,6 +9,7 @@ Need not worry about setting everything from scratch.
 
 ## Usage
 
+1. Clone repo `git clone --depth 1 https://github.com/BruceChanJianLe/cpp-benchmark` shallowly.
 1. Populate `src` and `include` directory with your testing code.
 1. Add your benchmark cases in the `benchmark` directory.
 
