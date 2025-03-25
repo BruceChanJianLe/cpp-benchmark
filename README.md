@@ -26,12 +26,9 @@ cmake --build build
 
 ## Running
 
-I use ctest as a helper to run the unit test.
-More about it [here](https://github.com/BruceChanJianLe/ctest).
-the ctest command.
-
+Run the respective executable in the `build` directory.  
 ```bash
-ctest --test-dir build
+./build/benchmark/vector_benchmark
 ```
 
 ## Extras
