@@ -23,6 +23,12 @@ add_library(game_entity SHARED
 )
 target_include_directories(game_entity PUBLIC include)
 
+# PMR Deep Dive
+find_package(fmt REQUIRED)
+add_executable(pmr_deep_dive ./src/memory/pmr_deep_dive.cpp)
+target_include_directories(pmr_deep_dive PUBLIC include)
+target_link_libraries(pmr_deep_dive fmt::fmt)
+
 include(FetchContent)
 
 # Add GoogleTest
