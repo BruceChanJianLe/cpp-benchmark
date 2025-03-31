@@ -1,4 +1,5 @@
 #include "benchmark/benchmark.h"
+#include <initializer_list>
 #include <vector>
 #include <list>
 #include <cstddef>
@@ -12,8 +13,8 @@ static void NoopBenchmark(benchmark::State& state) {
 
 static void PMRList(benchmark::State& state)
 {
+  std::byte stack_buff[2048];
   for (auto _ : state) {
-    std::byte stack_buff[2048];
     std::pmr::monotonic_buffer_resource rsrc(stack_buff, sizeof stack_buff);
     std::pmr::list<int> list_of_things1{{1,2,3,4,5,6,7,8,9,10}, &rsrc};
     std::pmr::list<int> list_of_things2{{1,2,3,4,5,6,7,8,9,10}, &rsrc};
@@ -32,10 +33,25 @@ static void StdList(benchmark::State& state)
   }
 }
 
+static void PMRWinkOutVector(benchmark::State& state)
+{
+  std::byte stack_buff[2048];
+  for (auto _ : state) {
+    std::pmr::monotonic_buffer_resource rsrc(stack_buff, sizeof stack_buff);
+    std::pmr::polymorphic_allocator<> alloc{&rsrc};
+    auto *vector_of_things1 = alloc.new_object<std::pmr::vector<int>>(
+        std::initializer_list<int>{1,2,3,4,5,6,7,8,9,10});
+    auto *vector_of_things2 = alloc.new_object<std::pmr::vector<int>>(
+        std::initializer_list<int>{1,2,3,4,5,6,7,8,9,10});
+    benchmark::DoNotOptimize(vector_of_things1);
+    benchmark::DoNotOptimize(vector_of_things2);
+  }
+}
+
 static void PMRVector(benchmark::State& state)
 {
+  std::byte stack_buff[2048];
   for (auto _ : state) {
-    std::byte stack_buff[2048];
     std::pmr::monotonic_buffer_resource rsrc(stack_buff, sizeof stack_buff);
     std::pmr::vector<int> vector_of_things1{{1,2,3,4,5,6,7,8,9,10}, &rsrc};
     std::pmr::vector<int> vector_of_things2{{1,2,3,4,5,6,7,8,9,10}, &rsrc};
@@ -60,6 +76,7 @@ BENCHMARK(PMRList);
 BENCHMARK(StdList);
 
 BENCHMARK(PMRVector);
+BENCHMARK(PMRWinkOutVector);
 BENCHMARK(StdVector);
 
 // Run the benchmark
