@@ -411,6 +411,29 @@ void mix_and_match_pmr() {
   spdlog::debug("Exiting function");
 }
 
+struct MyObject {
+    int id;
+    MyObject(int i) : id(i) { std::cout << "Constructing " << id << std::endl; }
+    ~MyObject() { std::cout << "Destroying " << id << std::endl; }
+};
+
+void winking_out_pmr() {
+    // 1. Create a memory pool with stack-allocated buffer
+    std::array<std::byte, 1024> buffer{};
+    std::pmr::monotonic_buffer_resource pool(buffer.data(), buffer.size());
+
+    // 2. Use std::pmr::polymorphic_allocator for object allocation
+    std::pmr::polymorphic_allocator<> alloc{&pool};
+
+    // 3. Allocate and construct objects using `new_object`
+    [[maybe_unused]] MyObject* obj1 = alloc.new_object<MyObject>(1);
+    [[maybe_unused]] MyObject* obj2 = alloc.new_object<MyObject>(2);
+    [[maybe_unused]] MyObject* obj3 = alloc.new_object<MyObject>(3);
+
+    std::cout << "Memory pool destroyed, objects wink out!" << std::endl;
+    // No explicit deletion! Objects "wink out" when `pool` is released
+}
+
 int main ([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
   fmt::print("\n\n\n======={:^25}=======\n\n\n", "Freed Resources");
@@ -436,6 +459,9 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 
   fmt::print("\n\n\n======={:^25}=======\n\n\n", "Mix and Match PMR");
   mix_and_match_pmr();
+
+  fmt::print("\n\n\n======={:^25}=======\n\n\n", "Winking Out PMR");
+  winking_out_pmr();
 
   return EXIT_SUCCESS;
 }
