@@ -25,9 +25,10 @@ target_include_directories(game_entity PUBLIC include)
 
 # PMR Deep Dive
 find_package(fmt REQUIRED)
+find_package(spdlog REQUIRED)
 add_executable(pmr_deep_dive ./src/memory/pmr_deep_dive.cpp)
 target_include_directories(pmr_deep_dive PUBLIC include)
-target_link_libraries(pmr_deep_dive fmt::fmt)
+target_link_libraries(pmr_deep_dive fmt::fmt spdlog::spdlog)
 
 include(FetchContent)
 

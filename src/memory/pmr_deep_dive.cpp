@@ -1,12 +1,17 @@
 #include "memory/pmr_deep_dive.hpp"
 
+#include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
 #include <memory_resource>
 #include <string>
 #include <vector>
 #include <iostream>
+
+#include <spdlog/spdlog.h>
 
 void freed_resources() {
   // 16 byte for allocation
@@ -254,6 +259,158 @@ void no_initializer_list_pmr() {
   std::cout << "Exit of function!\n";
 }
 
+/**
+ * \brief more detail version of print_resource
+ */
+class print_resource2 : public std::pmr::memory_resource {
+public:
+  print_resource2(std::string name, std::pmr::memory_resource* upstream)
+    : name_(std::move(name))
+    , upstream_(upstream)
+    {}
+
+private:
+  std::string name_;
+  std::pmr::memory_resource* upstream_;
+
+  void* do_allocate(std::size_t bytes, std::size_t alignment) override {
+    spdlog::trace("[{} (alloc)] Size: {} Alignment: {} ...", name_, bytes,
+        alignment);
+    auto result = upstream_->allocate(bytes, alignment);
+    spdlog::trace("[{} (alloc)] ... Address: {}", name_, result);
+    return result;
+  }
+
+  std::string format_destroyed_bytes(std::byte* p, const std::size_t size) {
+    std::string result = "";
+    bool in_str = false;
+
+    auto format_char = [](bool& in_string, const char c, const char next) {
+      auto format_byte = [](const char byte) {
+        return fmt::format(" {:02x}", static_cast<unsigned char>(byte));
+      };
+
+      if (std::isprint(static_cast<int>(c))) {
+        if (!in_string) {
+          if (std::isprint(static_cast<int>(next))) {
+            in_string = true;
+            return fmt::format(" \"{}", c);
+          } else {
+            return format_byte(c);
+          }
+        } else {
+          return std::string(1, c);
+        }
+      } else {
+        if (in_string) {
+          in_string = false;
+          return '"' + format_byte(c);
+        }
+        return format_byte(c);
+      }
+    };
+
+    std::size_t pos = 0;
+    for (; pos < std::min(size - 1, static_cast<std::size_t>(32)); ++pos) {
+      result += format_char(in_str, static_cast<char>(p[pos]),
+          static_cast<char>(p[pos + 1]));
+    }
+
+    result += format_char(in_str, static_cast<char>(p[pos]), 0);
+    if (in_str) {
+      result += '"';
+    }
+    if (pos < (size - 1)) {
+      result += " <truncated...>";
+    }
+    return result;
+  }
+
+  void do_deallocate(void* p, std::size_t bytes, std::size_t alignment) override {
+    spdlog::trace(
+        "[{} (dealloc)] Address: {} Dealloc Size: {} Alignment: {} Data: {}",
+        name_, p, bytes, alignment, 
+        format_destroyed_bytes(static_cast<std::byte*>(p), bytes));
+    upstream_->deallocate(p, bytes, alignment);
+  }
+
+  bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override {
+    return this == &other;
+  }
+};
+
+/**
+ * \brief Different mix and match of pmr
+ *        Notice that we have set the default resource to pmr::null_memory_resource
+ *        this resource will throw a std::bad_alloc, it is a good way to check whether
+ *        you have over used the allocated buffer and re-consider to increase it
+ *        or do something appropriate about it.
+ *
+ *        For the below example, we have the follow resource flow
+ *        unsync_pool -> monotoic -> null_memory_resource
+ *
+ *        You may play with the buffer size, at the moment it is 32kb,
+ *        if you reduced it to 500 bytes then it will go to the upstream for new
+ *        resource which here is the null_memory_resource and will throw a
+ *        std::bad_alloc.
+ */
+void mix_and_match_pmr() {
+  spdlog::set_level(spdlog::level::trace);
+
+  print_resource2 default_alloc{"Rouge PMR Allocation!", std::pmr::null_memory_resource()};
+  std::pmr::set_default_resource(&default_alloc);
+
+  print_resource2 oom{"Out of Memory", std::pmr::null_memory_resource()};
+
+  // 32kilo bytes
+  std::array<std::uint8_t, 32768> buffer{};
+  std::pmr::monotonic_buffer_resource underlying_bytes{
+    buffer.data(), buffer.size(), &oom};
+  print_resource2 monotonic{"Monotonic Array", &underlying_bytes};
+
+  // Lastly, chain to unsynchronize pool
+  std::pmr::unsynchronized_pool_resource unsync_pool(&monotonic);
+
+  print_resource2 pool{"Pool", &unsync_pool};
+
+  for (auto i = 0; i < 10; ++i) {
+    spdlog::debug("Starting Loop Iteration");
+    auto vec = create_contianer<std::pmr::vector<std::pmr::string>>(
+        &pool, "Hello", "World", "Hello Long String", "Another Long String");
+
+    spdlog::trace("Emplacing Long String");
+    vec.emplace_back("a different long string");
+
+    spdlog::trace("Emplacing Long String");
+    vec.emplace_back("a different long string 1");
+
+    spdlog::trace("Emplacing Long String");
+    vec.emplace_back("a different long string 2");
+
+    spdlog::trace("Emplacing Long String");
+    vec.emplace_back("a different long string 3");
+
+    spdlog::trace("Emplacing Short String");
+    vec.emplace_back("bobby");
+
+    spdlog::trace("Emplacing Short String");
+    vec.emplace_back("washy");
+
+    spdlog::trace("Erasing First Element");
+    vec.erase(vec.begin());
+
+    spdlog::trace("Erasing First Element");
+    vec.erase(vec.begin());
+
+    spdlog::trace("Erasing First Element");
+    vec.erase(vec.begin());
+
+    spdlog::debug("Finishing Loop Iteration");
+  }
+
+  spdlog::debug("Exiting function");
+}
+
 int main ([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
   fmt::print("\n\n\n======={:^25}=======\n\n\n", "Freed Resources");
@@ -276,6 +433,9 @@ int main ([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 
   fmt::print("\n\n\n======={:^25}=======\n\n\n", "No Initializer List & PMR");
   no_initializer_list_pmr();
+
+  fmt::print("\n\n\n======={:^25}=======\n\n\n", "Mix and Match PMR");
+  mix_and_match_pmr();
 
   return EXIT_SUCCESS;
 }
