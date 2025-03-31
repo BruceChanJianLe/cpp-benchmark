@@ -425,7 +425,10 @@ void winking_out_pmr() {
     // 2. Use std::pmr::polymorphic_allocator for object allocation
     std::pmr::polymorphic_allocator<> alloc{&pool};
 
-    // 3. Allocate and construct objects using `new_object`
+    // 3. Create a normal obj which destructor will be called
+    [[maybe_unused]] MyObject obj0(0);
+
+    // 4. Allocate and construct objects using `new_object`
     [[maybe_unused]] MyObject* obj1 = alloc.new_object<MyObject>(1);
     [[maybe_unused]] MyObject* obj2 = alloc.new_object<MyObject>(2);
     [[maybe_unused]] MyObject* obj3 = alloc.new_object<MyObject>(3);
