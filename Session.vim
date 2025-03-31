@@ -13,23 +13,29 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +60 include/memory/pmr_deep_dive.hpp
-badd +441 src/memory/pmr_deep_dive.cpp
-badd +31 CMakeLists.txt
+badd +428 src/memory/pmr_deep_dive.cpp
 badd +1 fugitive:///home/developer/reference/cpp-benchmark.git/worktrees/memory//
+badd +41 benchmark/pmr_performance.cpp
+badd +146 benchmark/pmr_multi_threads.cpp
+badd +7 benchmark/CMakeLists.txt
+badd +0 ~/reference/cpp-benchmark.git/memory
+badd +1 ~/reference/cpp-benchmark.git/worktrees/memory/COMMIT_EDITMSG
 argglobal
 %argdel
-$argadd ./
+$argadd ~/reference/cpp-benchmark.git/memory
 edit src/memory/pmr_deep_dive.cpp
 let s:save_splitbelow = &splitbelow
 let s:save_splitright = &splitright
 set splitbelow splitright
 wincmd _ | wincmd |
 split
-1wincmd k
+wincmd _ | wincmd |
+split
+2wincmd k
 wincmd _ | wincmd |
 vsplit
 1wincmd h
+wincmd w
 wincmd w
 wincmd w
 let &splitbelow = s:save_splitbelow
@@ -42,12 +48,13 @@ set winheight=1
 set winminwidth=0
 set winwidth=1
 exe '1resize ' . ((&lines * 23 + 25) / 50)
-exe 'vert 1resize ' . ((&columns * 119 + 95) / 191)
+exe 'vert 1resize ' . ((&columns * 95 + 95) / 191)
 exe '2resize ' . ((&lines * 23 + 25) / 50)
-exe 'vert 2resize ' . ((&columns * 71 + 95) / 191)
-exe '3resize ' . ((&lines * 23 + 25) / 50)
+exe 'vert 2resize ' . ((&columns * 95 + 95) / 191)
+exe '3resize ' . ((&lines * 11 + 25) / 50)
+exe '4resize ' . ((&lines * 11 + 25) / 50)
 argglobal
-balt include/memory/pmr_deep_dive.hpp
+balt benchmark/CMakeLists.txt
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -58,20 +65,20 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 440 - ((11 * winheight(0) + 11) / 23)
+let s:l = 428 - ((15 * winheight(0) + 11) / 23)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 440
-normal! 022|
+keepjumps 428
+normal! 061|
 lcd ~/reference/cpp-benchmark.git/memory
 wincmd w
 argglobal
-if bufexists(fnamemodify("~/reference/cpp-benchmark.git/memory/include/memory/pmr_deep_dive.hpp", ":p")) | buffer ~/reference/cpp-benchmark.git/memory/include/memory/pmr_deep_dive.hpp | else | edit ~/reference/cpp-benchmark.git/memory/include/memory/pmr_deep_dive.hpp | endif
+if bufexists(fnamemodify("~/reference/cpp-benchmark.git/memory/benchmark/pmr_performance.cpp", ":p")) | buffer ~/reference/cpp-benchmark.git/memory/benchmark/pmr_performance.cpp | else | edit ~/reference/cpp-benchmark.git/memory/benchmark/pmr_performance.cpp | endif
 if &buftype ==# 'terminal'
-  silent file ~/reference/cpp-benchmark.git/memory/include/memory/pmr_deep_dive.hpp
+  silent file ~/reference/cpp-benchmark.git/memory/benchmark/pmr_performance.cpp
 endif
-balt ~/reference/cpp-benchmark.git/memory/src/memory/pmr_deep_dive.cpp
+balt ~/reference/cpp-benchmark.git/memory/benchmark/pmr_multi_threads.cpp
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -82,12 +89,12 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 32 - ((0 * winheight(0) + 11) / 23)
+let s:l = 69 - ((8 * winheight(0) + 11) / 23)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 32
-normal! 0
+keepjumps 69
+normal! 016|
 lcd ~/reference/cpp-benchmark.git/memory
 wincmd w
 argglobal
@@ -95,7 +102,7 @@ if bufexists(fnamemodify("fugitive:///home/developer/reference/cpp-benchmark.git
 if &buftype ==# 'terminal'
   silent file fugitive:///home/developer/reference/cpp-benchmark.git/worktrees/memory//
 endif
-balt ~/reference/cpp-benchmark.git/memory/include/memory/pmr_deep_dive.hpp
+balt ~/reference/cpp-benchmark.git/memory/benchmark/CMakeLists.txt
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr=<<<<<<<<,>>>>>>>>
@@ -104,20 +111,45 @@ setlocal fdl=0
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 6 - ((5 * winheight(0) + 11) / 23)
+let s:l = 9 - ((8 * winheight(0) + 5) / 11)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 6
+keepjumps 9
 normal! 0
 lcd ~/reference/cpp-benchmark.git/memory
 wincmd w
-3wincmd w
+argglobal
+if bufexists(fnamemodify("~/reference/cpp-benchmark.git/worktrees/memory/COMMIT_EDITMSG", ":p")) | buffer ~/reference/cpp-benchmark.git/worktrees/memory/COMMIT_EDITMSG | else | edit ~/reference/cpp-benchmark.git/worktrees/memory/COMMIT_EDITMSG | endif
+if &buftype ==# 'terminal'
+  silent file ~/reference/cpp-benchmark.git/worktrees/memory/COMMIT_EDITMSG
+endif
+balt ~/reference/cpp-benchmark.git/memory/benchmark/CMakeLists.txt
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let &fdl = &fdl
+let s:l = 1 - ((0 * winheight(0) + 5) / 11)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 1
+normal! 015|
+lcd ~/reference/cpp-benchmark.git/memory
+wincmd w
+4wincmd w
 exe '1resize ' . ((&lines * 23 + 25) / 50)
-exe 'vert 1resize ' . ((&columns * 119 + 95) / 191)
+exe 'vert 1resize ' . ((&columns * 95 + 95) / 191)
 exe '2resize ' . ((&lines * 23 + 25) / 50)
-exe 'vert 2resize ' . ((&columns * 71 + 95) / 191)
-exe '3resize ' . ((&lines * 23 + 25) / 50)
+exe 'vert 2resize ' . ((&columns * 95 + 95) / 191)
+exe '3resize ' . ((&lines * 11 + 25) / 50)
+exe '4resize ' . ((&lines * 11 + 25) / 50)
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
