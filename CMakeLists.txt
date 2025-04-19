@@ -5,6 +5,13 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Using clang
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(CMAKE_CXX_EXTENSIONS OFF)
+  add_compile_options(-stdlib=libc++ -fexperimental-library)
+  add_link_options(-stdlib=libc++ -fexperimental-library)
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
   # "Debug", "Release", "MinSizeRel", "RelWithDebInfo"
