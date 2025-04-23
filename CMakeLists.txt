@@ -23,6 +23,8 @@ add_library(game_entity SHARED
 )
 target_include_directories(game_entity PUBLIC include)
 
+find_package(TBB REQUIRED)
+
 include(FetchContent)
 
 # Add GoogleTest
@@ -41,5 +43,13 @@ FetchContent_Declare(
   GIT_TAG        main
 )
 FetchContent_MakeAvailable(benchmark)
+
+# Add mdspan
+FetchContent_Declare(
+  mdspan
+  GIT_REPOSITORY https://github.com/kokkos/mdspan.git
+  GIT_TAG        mdspan-0.6.0
+)
+FetchContent_MakeAvailable(mdspan)
 
 add_subdirectory(benchmark)
