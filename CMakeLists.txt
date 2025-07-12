@@ -30,6 +30,15 @@ add_executable(pmr_deep_dive ./src/memory/pmr_deep_dive.cpp)
 target_include_directories(pmr_deep_dive PUBLIC include)
 target_link_libraries(pmr_deep_dive fmt::fmt spdlog::spdlog)
 
+# part 1 byte to byte compare
+add_executable(byte_to_byte_compare ./src/part1/byte_to_byte_compare.cpp)
+
+# part 1 object size
+add_executable(object_size ./src/part1/object_size.cpp)
+
+# part 1 rule_of_five_my_string
+add_executable(rule_of_five_my_string ./src/part1/rule_of_five_my_string.cpp)
+
 include(FetchContent)
 
 # Add GoogleTest
