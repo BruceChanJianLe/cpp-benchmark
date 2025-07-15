@@ -39,6 +39,15 @@ add_executable(object_size ./src/part1/object_size.cpp)
 # part 1 rule_of_five_my_string
 add_executable(rule_of_five_my_string ./src/part1/rule_of_five_my_string.cpp)
 
+# part 1 pointer interconvertibility
+add_executable(pointer_interconvertibility ./src/part1/pointer_interconvertibility.cpp)
+
+# # part 1 pointer interconvertibility 2
+# add_executable(pointer_interconvertibility2 ./src/part1/pointer_interconvertibility2.cpp)
+
+# part 1 understanding memory layout
+add_executable(understanding_memory_layout ./src/part1/understanding_memory_layout.cpp)
+
 include(FetchContent)
 
 # Add GoogleTest
